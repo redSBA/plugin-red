@@ -26,7 +26,12 @@ jobs:
       - name: Install MargyT dependencies
         run: |
           cd MargyT
-          pip install -e .
+          # Если есть requirements.txt, устанавливаем из него
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Устанавливаем базовые зависимости, если их нет
+          pip install pyyaml requests
+          # Добавляем текущую папку в PYTHONPATH, чтобы модули были видны
+          echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
       
       - name: Build Plugin
         run: |
