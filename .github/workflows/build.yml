@@ -5,24 +5,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+      
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
+      
       - name: Extract ZIP
         run: unzip -q red-theme-plugin.zip
+      
       - name: Clone MargyT
-        run: git clone https://github.com/narezany/MargyT.git
+        run: git clone --branch main https://github.com/narezany/MargyT.git
+      
+      - name: Install MargyT dependencies
+        run: |
+          cd MargyT
+          pip install -e .
+      
       - name: Build Plugin
         run: |
           cd MargyT
           cp -r ../red-theme-plugin .
           python3 -m margyt.plugin red-theme-plugin
+      
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
