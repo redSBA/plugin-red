@@ -32,12 +32,24 @@ jobs:
           pip install pyyaml requests
           echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
 
-      # ВАРИАНТ 1: Добавляем inject/java в CLASSPATH
+      # ВАЖНО: Собираем API MargyT, чтобы получить классы cat.narezany.margyt.*
+      - name: Build MargyT API
+        run: |
+          cd MargyT
+          # Собираем API (если есть build.sh или аналогичный скрипт)
+          if [ -f build.sh ]; then bash build.sh; fi
+          # Ищем собранные классы API
+          find . -name "*.jar" -o -name "*.class" | head -20
+
+      # Теперь собираем плагин, указывая путь к API
       - name: Build Plugin
         run: |
           cd MargyT
           cp -r ../red-theme-plugin .
-          export CLASSPATH="$PWD/inject/java:$PWD:$CLASSPATH"
+          # Ищем собранные классы API и добавляем в CLASSPATH
+          API_PATH=$(find . -type d -name "classes" -o -type d -name "out" -o -type d -name "build" | head -1)
+          export CLASSPATH="$API_PATH:$PWD/inject/java:$PWD:$CLASSPATH"
+          echo "CLASSPATH=$CLASSPATH"
           python3 -m margyt.plugin red-theme-plugin
 
       - name: Upload Artifact
